@@ -13,7 +13,7 @@ class KeyboardSimulatorApp:
 
         self.root = root
         self.root.title("我是扫码枪")
-        self.root.geometry("480x180")  # 适当调整窗口尺寸以容纳圆角效果
+        self.root.geometry("420x150")  # 更紧凑的窗口尺寸
 
         # 设置窗口置顶
         self.root.attributes('-topmost', True)
@@ -52,20 +52,20 @@ class KeyboardSimulatorApp:
         self.create_menu()
 
         # 创建主框架 - 使用自定义圆角框架
-        self.main_frame = self.create_rounded_frame(root, padding=12, bg_color='#ffffff')
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.main_frame = self.create_rounded_frame(root, padding=8, bg_color='#ffffff')
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
 
         # 创建说明标签
         self.label = ttk.Label(self.main_frame, text="请输入想要模拟的文本:", style='Notion.TLabel')
-        self.label.pack(anchor='w', pady=(0, 8))
+        self.label.pack(anchor='w', pady=(0, 4))
 
         # 创建输入框和状态文本组合容器
         input_container = ttk.Frame(self.main_frame, style='Notion.TFrame')
-        input_container.pack(fill=tk.X, pady=(0, 8))
+        input_container.pack(fill=tk.X, pady=(0, 4))
 
         # 创建文本输入框 - Notion风格（圆角、柔和边框）
         self.text_input = ttk.Entry(input_container, width=40, style='Notion.TEntry')
-        self.text_input.pack(fill=tk.X, pady=(0, 2))
+        self.text_input.pack(fill=tk.X, pady=(0, 1))
         self.text_input.focus()
 
         # 创建状态标签 - 放置在输入框同一容器内
@@ -79,20 +79,20 @@ class KeyboardSimulatorApp:
         self.button_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
         # 创建开始按钮 - Notion风格
-        self.start_button = ttk.Button(self.button_frame, text="开始", command=self.start_simulation, style='Notion.TButton')
-        self.start_button.pack(side=tk.RIGHT, padx=(0, 4))
+        self.start_button = ttk.Button(self.button_frame, text="开始", command=self.start_simulation, style='Notion.Primary.TButton')
+        self.start_button.pack(side=tk.RIGHT, padx=(0, 2))
 
         # 创建历史记录按钮 - Notion风格
         self.history_button = ttk.Button(self.button_frame, text="显示历史", command=self.toggle_history, style='Notion.TButton')
-        self.history_button.pack(side=tk.LEFT, padx=(0, 4))
+        self.history_button.pack(side=tk.LEFT, padx=(0, 2))
 
         # 创建清空按钮 - Notion风格
         self.clear_button = ttk.Button(self.button_frame, text="清空", command=self.clear_input, style='Notion.TButton')
-        self.clear_button.pack(side=tk.RIGHT, padx=(0, 4))
+        self.clear_button.pack(side=tk.RIGHT, padx=(0, 2))
 
         # 创建历史记录区域框架
         self.history_frame = ttk.Frame(self.root, style='Notion.TFrame')
-        self.history_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
+        self.history_frame.pack(fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
         self.history_frame.pack_forget()  # 初始隐藏历史记录区域
 
         # 绑定Enter键触发开始模拟
@@ -126,7 +126,7 @@ class KeyboardSimulatorApp:
         # 配置输入框样式 - 圆角效果通过borderwidth和relief实现
         self.style.configure('Notion.TEntry',
                             font=self.font_config,
-                            padding=8,  # 舒适的内边距
+                            padding=6,  # 更紧凑的内边距
                             fieldbackground=bg_color,
                             foreground=text_color,
                             bordercolor=border_color,
@@ -137,10 +137,10 @@ class KeyboardSimulatorApp:
                       lightcolor=[('focus', '#2563eb')],
                       darkcolor=[('focus', '#2563eb')])
 
-        # 配置按钮样式 - Notion风格的圆角按钮
+        # 配置按钮样式 - Notion风格的圆角按钮（基础）
         self.style.configure('Notion.TButton',
                             font=self.font_config,
-                            padding=6,  # 适中的内边距
+                            padding=5,  # 更紧凑的内边距
                             background=hover_color,
                             foreground=text_color,
                             bordercolor=border_color,
@@ -148,6 +148,20 @@ class KeyboardSimulatorApp:
         self.style.map('Notion.TButton',
                       background=[('active', active_color), ('hover', hover_color)],
                       relief=[('pressed', tk.SUNKEN), ('!pressed', tk.FLAT)])
+
+        # 主按钮（开始）- 蓝色
+        primary_bg = '#2563eb'
+        primary_bg_hover = '#1d4ed8'
+        self.style.configure('Notion.Primary.TButton',
+                             font=self.font_config,
+                             padding=5,
+                             background=primary_bg,
+                             foreground='#ffffff',
+                             bordercolor=primary_bg,
+                             relief=tk.FLAT)
+        self.style.map('Notion.Primary.TButton',
+                       background=[('active', primary_bg_hover), ('hover', primary_bg_hover)],
+                       relief=[('pressed', tk.SUNKEN), ('!pressed', tk.FLAT)])
 
         # 配置复选框样式 - Notion风格
         self.style.configure('Notion.TCheckbutton',
@@ -191,12 +205,12 @@ class KeyboardSimulatorApp:
     def show_history(self):
         """在主界面下方显示历史记录"""
         # 显示历史记录区域
-        self.history_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
+        self.history_frame.pack(fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
         self.history_visible = True
         self.history_button.config(text="隐藏历史")
 
         # 更新窗口高度以适应历史记录显示
-        self.root.geometry("480x320")
+        self.root.geometry("420x260")
 
         # 刷新历史记录显示内容
         self.refresh_history_display()
@@ -237,7 +251,7 @@ class KeyboardSimulatorApp:
         # 显示历史记录
         if not self.history:
             empty_label = ttk.Label(content_frame, text="暂无历史记录", style='Notion.Status.TLabel')
-            empty_label.pack(pady=20)
+            empty_label.pack(pady=12)
         else:
             # 显示所有历史记录，让用户可以通过滚动查看全部
             display_history = self.history
@@ -249,11 +263,11 @@ class KeyboardSimulatorApp:
                 col = i % 3
 
                 # 创建小卡片框架
-                card_frame = ttk.Frame(content_frame, style='Notion.TFrame', padding=5)
-                card_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+                card_frame = ttk.Frame(content_frame, style='Notion.TFrame', padding=4)
+                card_frame.grid(row=row, column=col, padx=4, pady=4, sticky="nsew")
 
                 # 设置固定大小，增加宽度以容纳更长的文本
-                card_frame.configure(width=130, height=80)
+                card_frame.configure(width=110, height=64)
 
                 # 添加阴影和圆角效果
                 card_frame.config(relief="solid", borderwidth=1)
@@ -261,8 +275,8 @@ class KeyboardSimulatorApp:
                 # 文本标签（小卡片样式）
                 # 截取部分文本显示在卡片上
                 display_text = text[:20] + '...' if len(text) > 20 else text
-                text_label = ttk.Label(card_frame, text=display_text, style='Notion.TLabel', wraplength=120, justify="left")
-                text_label.pack(fill=tk.BOTH, expand=True, pady=5)
+                text_label = ttk.Label(card_frame, text=display_text, style='Notion.TLabel', wraplength=100, justify="left")
+                text_label.pack(fill=tk.BOTH, expand=True, pady=4)
 
                 # 为卡片添加点击事件，点击后复制内容
                 def copy_on_click(event, text_to_copy=text):
@@ -338,7 +352,7 @@ class KeyboardSimulatorApp:
         self.history_button.config(text="显示历史")
 
         # 恢复窗口原始高度
-        self.root.geometry("480x180")
+        self.root.geometry("420x150")
 
     def open_settings(self):
         """打开设置对话框"""
@@ -371,8 +385,8 @@ class KeyboardSimulatorApp:
         settings_window.geometry(f"+{settings_x}+{settings_y}")
 
         # 创建圆角主框架
-        main_frame = self.create_rounded_frame(settings_window, padding=20, bg_color='#ffffff')
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame = self.create_rounded_frame(settings_window, padding=12, bg_color='#ffffff')
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
 
         # 添加复选框 - Notion风格
         enter_checkbox = ttk.Checkbutton(
@@ -383,14 +397,14 @@ class KeyboardSimulatorApp:
             offvalue=False,
             style='Notion.TCheckbutton'
         )
-        enter_checkbox.pack(anchor='w', pady=(10, 20))
+        enter_checkbox.pack(anchor='w', pady=(6, 12))
 
         # 添加输入间隔设置
         delay_frame = ttk.Frame(main_frame, style='Notion.TFrame')
-        delay_frame.pack(anchor='w', fill=tk.X, pady=(10, 20))
+        delay_frame.pack(anchor='w', fill=tk.X, pady=(6, 12))
 
         delay_label = ttk.Label(delay_frame, text="输入间隔(毫秒):", style='Notion.TLabel')
-        delay_label.pack(side=tk.LEFT, padx=(0, 10))
+        delay_label.pack(side=tk.LEFT, padx=(0, 6))
 
         delay_entry = ttk.Entry(delay_frame, width=10, textvariable=self.typing_delay, style='Notion.TEntry')
         delay_entry.pack(side=tk.LEFT)
