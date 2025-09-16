@@ -31,6 +31,7 @@ class KeyboardSimulatorApp:
 
         # 设置变量
         self.with_enter = tk.BooleanVar(value=True)  # 默认勾选以回车键结束
+        self.window_alpha = tk.IntVar(value=100)  # 窗口透明度 0-100
         self.history = []  # 用于存储历史记录的列表，保持插入顺序
         self.history_visible = False  # 历史记录区域的显示状态
         self.max_history_items = 50  # 最大历史记录条数
@@ -47,6 +48,12 @@ class KeyboardSimulatorApp:
         # 加载历史记录和设置
         self.load_history()
         self.load_settings()
+        # 应用透明度
+        try:
+            alpha = max(10, min(100, int(self.window_alpha.get()))) / 100.0
+            self.root.attributes('-alpha', alpha)
+        except Exception:
+            pass
 
         # 创建菜单栏
         self.create_menu()
@@ -409,6 +416,16 @@ class KeyboardSimulatorApp:
         delay_entry = ttk.Entry(delay_frame, width=10, textvariable=self.typing_delay, style='Notion.TEntry')
         delay_entry.pack(side=tk.LEFT)
 
+        # 添加透明度设置（0-100）
+        alpha_frame = ttk.Frame(main_frame, style='Notion.TFrame')
+        alpha_frame.pack(anchor='w', fill=tk.X, pady=(6, 12))
+
+        alpha_label = ttk.Label(alpha_frame, text="窗口透明度(10-100):", style='Notion.TLabel')
+        alpha_label.pack(side=tk.LEFT, padx=(0, 6))
+
+        alpha_entry = ttk.Entry(alpha_frame, width=10, textvariable=self.window_alpha, style='Notion.TEntry')
+        alpha_entry.pack(side=tk.LEFT)
+
         # 删除了确定按钮，用户可以通过点击窗口右上角的关闭按钮来关闭设置对话框
         # 绑定关闭事件，保存设置
         settings_window.protocol("WM_DELETE_WINDOW", lambda: (self.save_settings(), settings_window.destroy()))
@@ -522,15 +539,35 @@ class KeyboardSimulatorApp:
                         self.with_enter.set(settings['with_enter'])
                     if 'typing_delay' in settings:
                         self.typing_delay.set(settings['typing_delay'])
+                    if 'window_alpha' in settings:
+                        try:
+                            self.window_alpha.set(int(settings['window_alpha']))
+                        except Exception:
+                            pass
+            # 加载完成后立即应用透明度
+            try:
+                alpha = max(10, min(100, int(self.window_alpha.get()))) / 100.0
+                self.root.attributes('-alpha', alpha)
+            except Exception:
+                pass
         except Exception as e:
             print(f"加载设置失败: {e}")
 
     def save_settings(self):
         """保存设置到文件"""
         try:
+            # 保存时进行范围限制并立即应用透明度
+            try:
+                clamped_alpha = max(10, min(100, int(self.window_alpha.get())))
+                self.window_alpha.set(clamped_alpha)
+                self.root.attributes('-alpha', clamped_alpha / 100.0)
+            except Exception:
+                pass
+
             settings = {
                 'with_enter': self.with_enter.get(),
-                'typing_delay': self.typing_delay.get()
+                'typing_delay': self.typing_delay.get(),
+                'window_alpha': self.window_alpha.get()
             }
             with open(self.settings_file, 'w', encoding='utf-8') as f:
                 json.dump(settings, f, ensure_ascii=False, indent=2)
