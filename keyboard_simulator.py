@@ -33,6 +33,7 @@ class KeyboardSimulatorApp:
         # 设置变量
         self.with_enter = tk.BooleanVar(value=True)  # 默认勾选以回车键结束
         self.window_alpha = tk.IntVar(value=100)  # 窗口透明度 0-100
+        self.is_typing = False  # 是否正在输入，防止重复触发
         self.ultra_compact = tk.BooleanVar(value=False)  # 极致紧凑模式（折叠历史时更小）
         self.history = []  # 用于存储历史记录的列表，保持插入顺序
         self.history_visible = False  # 历史记录区域的显示状态
@@ -612,18 +613,19 @@ class KeyboardSimulatorApp:
 
                 # 为卡片添加双击事件，双击后将内容覆盖到输入框并执行开始操作
                 def double_click_to_input(event, text_to_input=text):
-                    # 检查是否正在输出字符串，如果正在输出则不触发双击事件
+                    # 正在输入则直接忽略，等待完成
+                    if getattr(self, 'is_typing', False):
+                        return "break"
                     # 使用更可靠的方式检测按钮是否被禁用
-                    # 在Tkinter中，tk.DISABLED常量实际上等同于字符串'disabled'
-                    # 同时检查两种形式是为了增强代码的健壮性，确保在不同平台或Tkinter版本下都能正常工作
                     if self.start_button['state'] in (tk.DISABLED, 'disabled'):
-                        return
+                        return "break"
 
                     # 将内容设置到输入框
                     self.text_input.delete(0, tk.END)
                     self.text_input.insert(0, text_to_input)
                     # 执行开始按钮操作
                     self.start_simulation()
+                    return "break"
 
                 card_frame.bind("<Double-1>", double_click_to_input)
                 text_label.bind("<Double-1>", double_click_to_input)
@@ -774,11 +776,12 @@ class KeyboardSimulatorApp:
             keyboard.press_and_release('enter')
 
         self.status_var.set("输入完成！")
-        # 恢复按钮状态和重新绑定Enter键
-        self.root.after(0, lambda: (
-            self.enable_buttons(),
+        # 恢复按钮状态、重置输入标记并重新绑定Enter键
+        def _finish_reset():
+            self.is_typing = False
+            self.enable_buttons()
             self.root.bind('<Return>', lambda event: self.start_simulation())
-        ))
+        self.root.after(0, _finish_reset)
 
     def disable_buttons(self):
         """禁用按钮，防止重复点击"""
@@ -794,6 +797,10 @@ class KeyboardSimulatorApp:
 
     def start_simulation(self):
         """开始模拟输入"""
+        # 防重入：若正在输入，忽略新的触发
+        if getattr(self, 'is_typing', False):
+            self.status_var.set("正在输入中，请稍候...")
+            return
         text = self.text_input.get().strip()
         if not text:
             self.status_var.set("请先输入文本！")
@@ -816,6 +823,8 @@ class KeyboardSimulatorApp:
         if self.history_visible:
             self.refresh_history_display()
 
+        # 标记正在输入并禁用按钮
+        self.is_typing = True
         # 禁用按钮
         self.disable_buttons()
         # 临时解绑Enter键事件，防止自动按Enter导致的循环
