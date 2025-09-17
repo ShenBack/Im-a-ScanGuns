@@ -23,7 +23,7 @@ def build_exe():
         cmd = [
             sys.executable,
             "-m", "PyInstaller",
-            "--name", "我是扫码枪V3测试版",  # 应用名称
+            "--name", "我是扫码枪V3.1",  # 应用名称
             "--onefile",  # 打包成单个文件
             "--windowed",  # 不显示控制台窗口
             "--noconfirm",  # 覆盖已有文件，不询问
@@ -34,7 +34,7 @@ def build_exe():
         # 执行打包命令
         subprocess.check_call(cmd)
         print("打包成功！")
-        print("可执行文件位于 dist\我是扫码枪V3测试版.exe")
+        print("可执行文件位于 dist\我是扫码枪V3.1.exe")
     except Exception as e:
         print(f"打包失败: {e}")
         sys.exit(1)
